@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokédex - Starter Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- CSS STYLING --- */
+        :root {
+            --primary-color: #ff3e3e;
+            --secondary-color: #2a2a2a;
+            --screen-bg: #f0f8ff;
+            --text-dark: #333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #1a1a1a;
+            font-family: 'Rajdhani', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .pokedex-device {
+            width: 100%;
+            max-width: 400px;
+            background: linear-gradient(145deg, #ff5e5e, #d60000);
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 2px solid #a80000;
+        }
+
+        /* Top Sensor Bar */
+        .top-bar { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+        .camera-lens {
+            width: 50px; height: 50px;
+            background: radial-gradient(circle at 30% 30%, #4facfe, #00f2fe);
+            border: 4px solid white; border-radius: 50%;
+            box-shadow: 0 0 10px #4facfe;
+        }
+        .indicator-lights { display: flex; gap: 5px; }
+        .light { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.2); }
+        .light.red { background: #ff4757; }
+        .light.yellow { background: #ffa502; }
+        .light.green { background: #2ed573; }
+
+        /* Main Screen */
+        .main-screen {
+            background-color: var(--secondary-color);
+            border-radius: 15px 15px 5px 5px;
+            padding: 15px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .display-content {
+            background-color: var(--screen-bg);
+            border-radius: 8px;
+            height: 500px;
+            overflow-y: auto;
+            position: relative;
+            font-family: 'Roboto Mono', monospace;
+            color: var(--text-dark);
+            scrollbar-width: thin;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+
+        /* Header */
+        .entry-header {
+            background: linear-gradient(180deg, #dceeff 0%, #ffffff 100%);
+            text-align: center;
+            padding: 20px;
+            border-bottom: 2px solid #ddd;
+            position: relative;
+        }
+        .poke-id { position: absolute; top: 10px; left: 15px; font-weight: bold; color: #666; }
+        
+        .poke-img-container {
+            width: 160px; height: 160px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .poke-img { max-width: 100%; max-height: 100%; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
+
+        .poke-name { font-family: 'Rajdhani', sans-serif; font-size: 2rem; font-weight: 700; text-transform: uppercase; margin-top: 5px;}
+        .type-badges { display: flex; justify-content: center; gap: 10px; margin-top: 5px; }
+        .type-badge { padding: 4px 12px; border-radius: 20px; color: white; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+
+        /* Type Colors */
+        .type-grass { background-color: #7AC74C; }
+        .type-poison { background-color: #A33EA1; }
+        .type-fire { background-color: #EE8130; }
+        .type-water { background-color: #6390F0; }
+
+        /* Tabs */
+        .tabs { display: flex; background: #e0e0e0; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #ccc; }
+        .tab-btn {
+            flex: 1; padding: 10px; border: none; background: none;
+            font-family: 'Rajdhani', sans-serif; font-weight: 700; cursor: pointer;
+            color: #777; border-bottom: 3px solid transparent;
+        }
+        .tab-btn.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); background: #fff; }
+
+        .tab-content { display: none; padding: 20px; }
+        .tab-content.active { display: block; }
+
+        /* Data Boxes */
+        .eco-box { background: white; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .eco-title { font-weight: bold; margin-bottom: 10px; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
+        .data-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; font-size: 0.9rem;}
+        .flavor-text { font-style: italic; background: #fff; padding: 15px; border-left: 4px solid var(--primary-color); margin-bottom: 20px; font-size: 0.9rem; }
+
+        /* Stats Bars Styling */
+        .stat-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.8rem; }
+        .stat-name { width: 50px; font-weight: bold; }
+        .stat-bar-container { flex: 1; background: #ddd; height: 8px; border-radius: 4px; margin: 0 10px; overflow: hidden; }
+        .stat-bar-fill { height: 100%; border-radius: 4px; }
+        .stat-val { width: 30px; text-align: right; }
+
+        /* Stats Colors */
+        .hp-bar { background: #FF5959; }
+        .atk-bar { background: #F5AC78; }
+        .def-bar { background: #FAE078; }
+        .spa-bar { background: #9DB7F5; }
+        .spd-bar { background: #A7DB8D; }
+        .spe-bar { background: #FA92B2; }
+
+        /* Controls */
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 0 10px; }
+        .d-pad { width: 80px; height: 80px; position: relative; }
+        .d-pad div { background: #222; position: absolute; border-radius: 4px; cursor: pointer; box-shadow: 0 2px 0 #000; transition: transform 0.1s; }
+        .d-pad div:active { transform: scale(0.95); box-shadow: 0 1px 0 #000; }
+        .d-up-down { width: 25px; height: 80px; left: 27.5px; top: 0; }
+        .d-left-right { width: 80px; height: 25px; top: 27.5px; left: 0; }
+        
+        /* Nav Labels */
+        .nav-hint { position: absolute; color: white; font-size: 10px; width: 100%; text-align: center; bottom: -20px; }
+
+    </style>
+</head>
+<body>
+
+<div class="pokedex-device">
+    <div class="top-bar">
+        <div class="camera-lens"></div>
+        <div class="indicator-lights">
+            <div class="light red"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+        </div>
+    </div>
+
+    <div class="main-screen">
+        <div id="screen-container" class="display-content fade-in">
+            <!-- Content Injected by JS -->
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="d-pad">
+            <div class="d-up-down"></div> <!-- Aesthetic only -->
+            <div class="d-left-right" onclick="nextPokemon()"></div> <!-- Click handler covers whole bar for simplicity -->
+            <div class="nav-hint">CLICK D-PAD</div>
+        </div>
+        <div style="color: #444; font-size: 0.8rem; font-weight: bold;">
+            SYSTEM v2.1
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- DATABASE ---
+    const pokemonDB = [
+        {
+            id: "#0001",
+            name: "Bulbasaur",
+            genus: "Seed Pokémon",
+            types: ["Grass", "Poison"],
+            image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png",
+            flavor: "An extraordinary Grass-type. The flower on its back collects energy and can release specific gases affecting the behavior of creatures nearby.",
+            height: "0.7 m",
+            weight: "6.9 kg",
+            diet: "Photosynthesis",
+            dietInfo: "Does not require solid food. All neutrinos gained from Photosynthesis.",
+            breeding: "Uses vines for stability and holding partners firmly during the process. The bulb releases potent pheromones causing intense attraction in nearby creatures.",
+            extras: "Warning: Pheromones are extremely potent.",
+            stats: { hp: 45, atk: 49, def: 49, spa: 65, spd: 65, spe: 45 }
+        },
+        {
+            id: "#0004",
+            name: "Charmander",
+            genus: "Lizard Pokémon",
+            types: ["Fire"],
+            image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png",
+            flavor: "A Fire-type whose life force is directly linked to its tail flame. If the flame goes out, it dies.",
+            height: "0.6 m",
+            weight: "8.5 kg",
+            diet: "Carnivore",
+            dietInfo: "Meat of any kind. ANY KIND. Voracious appetite.",
+            breeding: "Tail flame flares brighter during mating. Some individuals enjoy when their partner takes control of their flame's intensity.",
+            extras: "Prefers hot environments.",
+            stats: { hp: 39, atk: 52, def: 43, spa: 60, spd: 50, spe: 65 }
+        },
+        {
+            id: "#0007",
+            name: "Squirtle",
+            genus: "Tiny Turtle Pokémon",
+            types: ["Water"],
+            image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png",
+            flavor: "Common near rivers and oceans. It shoots high-pressure water jets from its mouth.",
+            height: "0.5 m",
+            weight: "9.0 kg",
+            diet: "Omnivore",
+            dietInfo: "Primarily veggies, occasionally fish.",
+            breeding: "Aquatic mating. Known to unwrap tail for unique tactile reproductive functions.",
+            extras: "SAFETY WARNING: Water jets are high pressure. Do not target humans (Hospital incidents on record).",
+            stats: { hp: 44, atk: 48, def: 65, spa: 50, spd: 64, spe: 43 }
+        }
+    ];
+
+    let currentIndex = 0;
+    let currentTab = 'info';
+
+    function renderPokemon() {
+        const data = pokemonDB[currentIndex];
+        const container = document.getElementById('screen-container');
+        
+        // Generate Type Badges HTML
+        let typeHtml = data.types.map(t => 
+            `<span class="type-badge type-${t.toLowerCase()}">${t}</span>`
+        ).join('');
+
+        // Helper to normalize stat bars (based on max 150 for visual scaling)
+        const normalize = (val) => Math.min((val / 150) * 100, 100);
+        const totalStats = Object.values(data.stats).reduce((a, b) => a + b, 0);
+
+        // Template Literal for the whole screen
+        container.innerHTML = `
+            <div class="entry-header">
+                <span class="poke-id">${data.id}</span>
+                <div class="poke-img-container">
+                    <img src="${data.image}" class="poke-img">
+                </div>
+                <h1 class="poke-name">${data.name}</h1>
+                <div class="type-badges">${typeHtml}</div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn ${currentTab === 'info' ? 'active' : ''}" onclick="setTab('info')">INFO</button>
+                <button class="tab-btn ${currentTab === 'bio' ? 'active' : ''}" onclick="setTab('bio')">BIOLOGY</button>
+                <button class="tab-btn ${currentTab === 'stats' ? 'active' : ''}" onclick="setTab('stats')">STATS</button>
+            </div>
+
+            <!-- TAB: INFO -->
+            <div class="tab-content ${currentTab === 'info' ? 'active' : ''}">
+                <div class="flavor-text">"${data.flavor}"</div>
+                <div class="eco-box">
+                    <div class="eco-title"><i class="fas fa-ruler"></i> Stats</div>
+                    <div class="data-row"><span class="data-label">Genus</span><span>${data.genus}</span></div>
+                    <div class="data-row"><span class="data-label">Height</span><span>${data.height}</span></div>
+                    <div class="data-row"><span class="data-label">Weight</span><span>${data.weight}</span></div>
+                </div>
+            </div>
+
+            <!-- TAB: BIOLOGY (Custom Lore) -->
+            <div class="tab-content ${currentTab === 'bio' ? 'active' : ''}">
+                <div class="eco-box">
+                    <div class="eco-title"><i class="fas fa-utensils"></i> Diet</div>
+                    <div class="data-row"><span class="data-label">Type</span><span>${data.diet}</span></div>
+                    <p style="font-size:0.85rem; margin-top:5px;">${data.dietInfo}</p>
+                </div>
+                
+                <div class="eco-box">
+                    <div class="eco-title"><i class="fas fa-heart"></i> Breeding & Traits</div>
+                    <p style="font-size:0.85rem; line-height:1.4;">${data.breeding}</p>
+                </div>
+
+                <div class="eco-box">
+                    <div class="eco-title"><i class="fas fa-exclamation-triangle"></i> Notes</div>
+                    <p style="font-size:0.85rem; color:#d60000;">${data.extras}</p>
+                </div>
+            </div>
+
+            <!-- TAB: STATS -->
+            <div class="tab-content ${currentTab === 'stats' ? 'active' : ''}">
+                <div class="eco-box">
+                    <div class="eco-title"><i class="fas fa-chart-bar"></i> Base Stats</div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-name">HP</span>
+                        <div class="stat-bar-container"><div class="stat-bar-fill hp-bar" style="width: ${normalize(data.stats.hp)}%;"></div></div>
+                        <span class="stat-val">${data.stats.hp}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Atk</span>
+                        <div class="stat-bar-container"><div class="stat-bar-fill atk-bar" style="width: ${normalize(data.stats.atk)}%;"></div></div>
+                        <span class="stat-val">${data.stats.atk}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Def</span>
+                        <div class="stat-bar-container"><div class="stat-bar-fill def-bar" style="width: ${normalize(data.stats.def)}%;"></div></div>
+                        <span class="stat-val">${data.stats.def}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">SpA</span>
+                        <div class="stat-bar-container"><div class="stat-bar-fill spa-bar" style="width: ${normalize(data.stats.spa)}%;"></div></div>
+                        <span class="stat-val">${data.stats.spa}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">SpD</span>
+                        <div class="stat-bar-container"><div class="stat-bar-fill spd-bar" style="width: ${normalize(data.stats.spd)}%;"></div></div>
+                        <span class="stat-val">${data.stats.spd}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Spe</span>
+                        <div class="stat-bar-container"><div class="stat-bar-fill spe-bar" style="width: ${normalize(data.stats.spe)}%;"></div></div>
+                        <span class="stat-val">${data.stats.spe}</span>
+                    </div>
+
+                    <div style="text-align:center; font-size:0.7rem; color:#888; margin-top:10px;">
+                        Total: ${totalStats}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function setTab(tabName) {
+        currentTab = tabName;
+        renderPokemon();
+    }
+
+    function nextPokemon() {
+        currentIndex = (currentIndex + 1) % pokemonDB.length;
+        // Reset animation
+        const container = document.getElementById('screen-container');
+        container.classList.remove('fade-in');
+        void container.offsetWidth; // trigger reflow
+        container.classList.add('fade-in');
+        renderPokemon();
+    }
+
+    // Initial Load
+    renderPokemon();
+
+</script>
+
+</body>
+</html>
