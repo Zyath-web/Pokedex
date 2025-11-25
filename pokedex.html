@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokédex - Starter Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RP Pokédex Database</title>
+    <meta name="description" content="Interaktiver Pokédex für unser Roleplay">
+    
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -14,135 +17,240 @@
             --secondary-color: #2a2a2a;
             --screen-bg: #f0f8ff;
             --text-dark: #333;
+            --glass: rgba(255,255,255,0.1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
-            background-color: #1a1a1a;
+            background-color: #111;
+            background-image: radial-gradient(#222 15%, transparent 16%), radial-gradient(#222 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
             font-family: 'Rajdhani', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            color: white;
+            overflow: hidden; /* Prevent body scroll, handle inside device */
         }
 
+        /* Das Gerät (Desktop Ansicht) */
         .pokedex-device {
             width: 100%;
-            max-width: 400px;
-            background: linear-gradient(145deg, #ff5e5e, #d60000);
+            max-width: 420px;
+            height: 850px;
+            max-height: 95vh;
+            background: linear-gradient(145deg, #ff5e5e, #c90000);
             border-radius: 30px;
             padding: 20px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            border: 2px solid #a80000;
+            box-shadow: 
+                0 30px 60px rgba(0,0,0,0.6),
+                inset 0 2px 5px rgba(255,255,255,0.3),
+                inset 0 -2px 5px rgba(0,0,0,0.2);
+            border: 4px solid #900;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Mobile Anpassung (Wichtig für Webseite!) --- */
+        @media (max-width: 480px) {
+            body { padding: 0; background: #c90000; }
+            .pokedex-device {
+                width: 100%;
+                height: 100vh;
+                max-height: none;
+                border-radius: 0;
+                border: none;
+                box-shadow: none;
+                padding: 15px;
+            }
         }
 
         /* Top Sensor Bar */
-        .top-bar { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+        .top-bar { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; flex-shrink: 0; }
         .camera-lens {
-            width: 50px; height: 50px;
+            width: 60px; height: 60px;
             background: radial-gradient(circle at 30% 30%, #4facfe, #00f2fe);
-            border: 4px solid white; border-radius: 50%;
-            box-shadow: 0 0 10px #4facfe;
+            border: 5px solid white; border-radius: 50%;
+            box-shadow: 0 0 15px #4facfe, inset 0 0 10px rgba(0,0,0,0.5);
+            position: relative;
         }
-        .indicator-lights { display: flex; gap: 5px; }
-        .light { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.2); }
+        .camera-lens::after {
+            content: ''; position: absolute; top: 10px; left: 10px;
+            width: 15px; height: 15px; background: white; border-radius: 50%; opacity: 0.6;
+        }
+
+        .indicator-lights { display: flex; gap: 8px; }
+        .light { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.3); box-shadow: inset 1px 1px 2px rgba(255,255,255,0.4); }
         .light.red { background: #ff4757; }
         .light.yellow { background: #ffa502; }
         .light.green { background: #2ed573; }
 
-        /* Main Screen */
+        /* Main Screen Container */
+        .main-screen-border {
+            background-color: #dedede;
+            border-radius: 15px 15px 40px 15px; /* Pokedex Shape */
+            padding: 20px 20px 40px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 2px 2px 5px rgba(255,255,255,0.8), inset -2px -2px 5px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
         .main-screen {
             background-color: var(--secondary-color);
-            border-radius: 15px 15px 5px 5px;
-            padding: 15px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            border-radius: 8px;
+            padding: 10px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+            border: 2px solid #555;
+            overflow: hidden;
         }
 
         .display-content {
             background-color: var(--screen-bg);
-            border-radius: 8px;
-            height: 500px;
+            border-radius: 4px;
+            flex: 1;
             overflow-y: auto;
             position: relative;
             font-family: 'Roboto Mono', monospace;
             color: var(--text-dark);
             scrollbar-width: thin;
+            display: flex;
+            flex-direction: column;
         }
         
-        /* Animations */
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        /* Custom Scrollbar */
+        .display-content::-webkit-scrollbar { width: 6px; }
+        .display-content::-webkit-scrollbar-thumb { background-color: var(--primary-color); border-radius: 3px; }
 
-        /* Header */
+        /* Animations */
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scanline {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.05) 51%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+
+        /* Content Styling */
         .entry-header {
             background: linear-gradient(180deg, #dceeff 0%, #ffffff 100%);
             text-align: center;
-            padding: 20px;
-            border-bottom: 2px solid #ddd;
+            padding: 15px;
+            border-bottom: 2px solid #aaa;
             position: relative;
+            flex-shrink: 0;
         }
-        .poke-id { position: absolute; top: 10px; left: 15px; font-weight: bold; color: #666; }
+        .poke-id { position: absolute; top: 10px; left: 15px; font-weight: bold; color: #555; font-family: 'Rajdhani', sans-serif; }
         
         .poke-img-container {
-            width: 160px; height: 160px; margin: 0 auto;
+            width: 140px; height: 140px; margin: 0 auto;
             display: flex; align-items: center; justify-content: center;
         }
-        .poke-img { max-width: 100%; max-height: 100%; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
+        .poke-img { 
+            max-width: 100%; max-height: 100%; 
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+            transition: transform 0.3s;
+        }
+        .poke-img:hover { transform: scale(1.1); }
 
-        .poke-name { font-family: 'Rajdhani', sans-serif; font-size: 2rem; font-weight: 700; text-transform: uppercase; margin-top: 5px;}
-        .type-badges { display: flex; justify-content: center; gap: 10px; margin-top: 5px; }
-        .type-badge { padding: 4px 12px; border-radius: 20px; color: white; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
-
-        /* Type Colors */
+        .poke-name { font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; font-weight: 700; text-transform: uppercase; margin-top: 5px; color: #222; }
+        
+        .type-badges { display: flex; justify-content: center; gap: 8px; margin-top: 5px; }
+        .type-badge { 
+            padding: 3px 10px; border-radius: 4px; color: white; font-size: 0.7rem; 
+            font-weight: bold; text-transform: uppercase; text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+            border: 1px solid rgba(0,0,0,0.2);
+        }
         .type-grass { background-color: #7AC74C; }
         .type-poison { background-color: #A33EA1; }
         .type-fire { background-color: #EE8130; }
         .type-water { background-color: #6390F0; }
 
         /* Tabs */
-        .tabs { display: flex; background: #e0e0e0; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #ccc; }
+        .tabs { display: flex; background: #333; position: sticky; top: 0; z-index: 5; }
         .tab-btn {
-            flex: 1; padding: 10px; border: none; background: none;
+            flex: 1; padding: 12px; border: none; background: #333;
             font-family: 'Rajdhani', sans-serif; font-weight: 700; cursor: pointer;
-            color: #777; border-bottom: 3px solid transparent;
+            color: #888; border-bottom: 3px solid #333; transition: all 0.2s;
         }
-        .tab-btn.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); background: #fff; }
+        .tab-btn.active { color: white; border-bottom: 3px solid var(--primary-color); background: #444; }
+        .tab-btn:hover { color: #fff; }
 
-        .tab-content { display: none; padding: 20px; }
+        .tab-content { display: none; padding: 15px; padding-bottom: 60px; } /* Extra padding for scroll */
         .tab-content.active { display: block; }
 
         /* Data Boxes */
-        .eco-box { background: white; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .eco-title { font-weight: bold; margin-bottom: 10px; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
-        .data-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; font-size: 0.9rem;}
-        .flavor-text { font-style: italic; background: #fff; padding: 15px; border-left: 4px solid var(--primary-color); margin-bottom: 20px; font-size: 0.9rem; }
+        .eco-box { 
+            background: white; border-radius: 6px; padding: 12px; margin-bottom: 12px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 3px solid #ddd;
+        }
+        .eco-title { font-weight: bold; margin-bottom: 8px; color: #222; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;}
+        .data-row { display: flex; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px dotted #ccc; padding-bottom: 4px; font-size: 0.85rem;}
+        .data-value { text-align: right; font-weight: 500; color: #000; }
+        
+        .flavor-text { 
+            font-style: italic; background: #fff; padding: 12px; 
+            border-left: 4px solid var(--primary-color); margin-bottom: 15px; 
+            font-size: 0.85rem; line-height: 1.5; color: #444;
+        }
 
-        /* Stats Bars Styling */
-        .stat-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.8rem; }
-        .stat-name { width: 50px; font-weight: bold; }
-        .stat-bar-container { flex: 1; background: #ddd; height: 8px; border-radius: 4px; margin: 0 10px; overflow: hidden; }
-        .stat-bar-fill { height: 100%; border-radius: 4px; }
-        .stat-val { width: 30px; text-align: right; }
+        /* Stats Bars */
+        .stat-row { display: flex; align-items: center; margin-bottom: 6px; font-size: 0.75rem; }
+        .stat-name { width: 40px; font-weight: bold; color: #666; }
+        .stat-bar-container { flex: 1; background: #e0e0e0; height: 10px; border-radius: 5px; margin: 0 8px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); }
+        .stat-bar-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease-out; }
+        .stat-val { width: 25px; text-align: right; font-weight: bold; }
 
         /* Stats Colors */
-        .hp-bar { background: #FF5959; }
-        .atk-bar { background: #F5AC78; }
-        .def-bar { background: #FAE078; }
-        .spa-bar { background: #9DB7F5; }
-        .spd-bar { background: #A7DB8D; }
-        .spe-bar { background: #FA92B2; }
+        .hp-bar { background: linear-gradient(90deg, #FF5959, #ff8c8c); }
+        .atk-bar { background: linear-gradient(90deg, #F5AC78, #ffceab); }
+        .def-bar { background: linear-gradient(90deg, #FAE078, #fff0b3); }
+        .spa-bar { background: linear-gradient(90deg, #9DB7F5, #c2d4ff); }
+        .spd-bar { background: linear-gradient(90deg, #A7DB8D, #c9f5b3); }
+        .spe-bar { background: linear-gradient(90deg, #FA92B2, #ffc2d6); }
 
-        /* Controls */
-        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 0 10px; }
-        .d-pad { width: 80px; height: 80px; position: relative; }
-        .d-pad div { background: #222; position: absolute; border-radius: 4px; cursor: pointer; box-shadow: 0 2px 0 #000; transition: transform 0.1s; }
-        .d-pad div:active { transform: scale(0.95); box-shadow: 0 1px 0 #000; }
-        .d-up-down { width: 25px; height: 80px; left: 27.5px; top: 0; }
-        .d-left-right { width: 80px; height: 25px; top: 27.5px; left: 0; }
+        /* Controls Area */
+        .controls { 
+            display: flex; justify-content: space-between; align-items: flex-end; 
+            margin-top: auto; padding: 0 10px; flex-shrink: 0;
+        }
         
-        /* Nav Labels */
-        .nav-hint { position: absolute; color: white; font-size: 10px; width: 100%; text-align: center; bottom: -20px; }
+        .d-pad-container { position: relative; width: 90px; height: 90px; }
+        .d-pad { width: 100%; height: 100%; position: relative; }
+        .d-pad div { background: #222; position: absolute; border-radius: 4px; cursor: pointer; box-shadow: 0 3px 0 #000; transition: transform 0.1s; border: 1px solid #444;}
+        .d-pad div:active { transform: scale(0.96); box-shadow: 0 1px 0 #000; }
+        .d-up-down { width: 28px; height: 90px; left: 31px; top: 0; }
+        .d-left-right { width: 90px; height: 28px; top: 31px; left: 0; }
+        .d-center { width: 20px; height: 20px; background: #333; position: absolute; top: 35px; left: 35px; border-radius: 50%; pointer-events: none;}
+        
+        .system-info { text-align: right; }
+        .speaker-grill { display: flex; gap: 4px; justify-content: flex-end; margin-bottom: 10px; }
+        .grill-line { width: 40px; height: 4px; background: #7a0000; border-radius: 2px; box-shadow: inset 0 1px 1px rgba(0,0,0,0.5); }
+        .version-text { font-size: 0.7rem; color: #ffcccc; opacity: 0.7; font-family: monospace; }
+        
+        /* Navigation Hint */
+        .nav-hint { 
+            position: absolute; width: 100%; text-align: center; 
+            bottom: -25px; color: white; font-size: 0.7rem; opacity: 0.8;
+            pointer-events: none;
+        }
 
     </style>
 </head>
@@ -158,20 +266,39 @@
         </div>
     </div>
 
-    <div class="main-screen">
-        <div id="screen-container" class="display-content fade-in">
-            <!-- Content Injected by JS -->
+    <div class="main-screen-border">
+        <div class="main-screen">
+            <div class="scanline"></div>
+            <div id="screen-container" class="display-content fade-in">
+                <!-- Content Injected by JS -->
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 8px;">
+            <span style="font-size: 1rem; color: #999; font-weight: 900; font-family: 'Rajdhani'; letter-spacing: 2px;">NINTENDO</span>
         </div>
     </div>
 
     <div class="controls">
-        <div class="d-pad">
-            <div class="d-up-down"></div> <!-- Aesthetic only -->
-            <div class="d-left-right" onclick="nextPokemon()"></div> <!-- Click handler covers whole bar for simplicity -->
-            <div class="nav-hint">CLICK D-PAD</div>
+        <div class="d-pad-container">
+            <div class="d-pad">
+                <div class="d-up-down"></div>
+                <div class="d-left-right" onclick="nextPokemon()"></div>
+                <div class="d-center"></div>
+            </div>
+            <div class="nav-hint">TAP LEFT/RIGHT</div>
         </div>
-        <div style="color: #444; font-size: 0.8rem; font-weight: bold;">
-            SYSTEM v2.1
+        
+        <div class="system-info">
+            <div class="speaker-grill">
+                <div class="grill-line"></div>
+            </div>
+            <div class="speaker-grill">
+                <div class="grill-line"></div>
+            </div>
+            <div class="speaker-grill">
+                <div class="grill-line"></div>
+            </div>
+            <div class="version-text">DEX-OS v3.5<br>ONLINE</div>
         </div>
     </div>
 </div>
@@ -190,7 +317,7 @@
             weight: "6.9 kg",
             diet: "Photosynthesis",
             dietInfo: "Does not require solid food. All neutrinos gained from Photosynthesis.",
-            breeding: "Uses vines for stability and holding partners firmly during the process. The bulb releases potent pheromones causing intense attraction in nearby creatures.",
+            breeding: "Uses vines for stability and holding partners firmly. The bulb releases potent pheromones causing intense attraction in nearby creatures.",
             extras: "Warning: Pheromones are extremely potent.",
             stats: { hp: 45, atk: 49, def: 49, spa: 65, spd: 65, spe: 45 }
         },
@@ -233,16 +360,13 @@
         const data = pokemonDB[currentIndex];
         const container = document.getElementById('screen-container');
         
-        // Generate Type Badges HTML
         let typeHtml = data.types.map(t => 
             `<span class="type-badge type-${t.toLowerCase()}">${t}</span>`
         ).join('');
 
-        // Helper to normalize stat bars (based on max 150 for visual scaling)
         const normalize = (val) => Math.min((val / 150) * 100, 100);
         const totalStats = Object.values(data.stats).reduce((a, b) => a + b, 0);
 
-        // Template Literal for the whole screen
         container.innerHTML = `
             <div class="entry-header">
                 <span class="poke-id">${data.id}</span>
@@ -259,74 +383,44 @@
                 <button class="tab-btn ${currentTab === 'stats' ? 'active' : ''}" onclick="setTab('stats')">STATS</button>
             </div>
 
-            <!-- TAB: INFO -->
             <div class="tab-content ${currentTab === 'info' ? 'active' : ''}">
                 <div class="flavor-text">"${data.flavor}"</div>
                 <div class="eco-box">
                     <div class="eco-title"><i class="fas fa-ruler"></i> Stats</div>
-                    <div class="data-row"><span class="data-label">Genus</span><span>${data.genus}</span></div>
-                    <div class="data-row"><span class="data-label">Height</span><span>${data.height}</span></div>
-                    <div class="data-row"><span class="data-label">Weight</span><span>${data.weight}</span></div>
+                    <div class="data-row"><span class="data-label">Genus</span><span class="data-value">${data.genus}</span></div>
+                    <div class="data-row"><span class="data-label">Height</span><span class="data-value">${data.height}</span></div>
+                    <div class="data-row"><span class="data-label">Weight</span><span class="data-value">${data.weight}</span></div>
                 </div>
             </div>
 
-            <!-- TAB: BIOLOGY (Custom Lore) -->
             <div class="tab-content ${currentTab === 'bio' ? 'active' : ''}">
                 <div class="eco-box">
                     <div class="eco-title"><i class="fas fa-utensils"></i> Diet</div>
-                    <div class="data-row"><span class="data-label">Type</span><span>${data.diet}</span></div>
-                    <p style="font-size:0.85rem; margin-top:5px;">${data.dietInfo}</p>
+                    <div class="data-row"><span class="data-label">Type</span><span class="data-value">${data.diet}</span></div>
+                    <p style="font-size:0.85rem; margin-top:5px; color:#444;">${data.dietInfo}</p>
                 </div>
-                
                 <div class="eco-box">
                     <div class="eco-title"><i class="fas fa-heart"></i> Breeding & Traits</div>
-                    <p style="font-size:0.85rem; line-height:1.4;">${data.breeding}</p>
+                    <p style="font-size:0.85rem; line-height:1.4; color:#444;">${data.breeding}</p>
                 </div>
-
-                <div class="eco-box">
-                    <div class="eco-title"><i class="fas fa-exclamation-triangle"></i> Notes</div>
+                <div class="eco-box" style="border-left-color: #d60000;">
+                    <div class="eco-title" style="color:#d60000;"><i class="fas fa-exclamation-triangle"></i> Notes</div>
                     <p style="font-size:0.85rem; color:#d60000;">${data.extras}</p>
                 </div>
             </div>
 
-            <!-- TAB: STATS -->
             <div class="tab-content ${currentTab === 'stats' ? 'active' : ''}">
                 <div class="eco-box">
                     <div class="eco-title"><i class="fas fa-chart-bar"></i> Base Stats</div>
-                    
-                    <div class="stat-row">
-                        <span class="stat-name">HP</span>
-                        <div class="stat-bar-container"><div class="stat-bar-fill hp-bar" style="width: ${normalize(data.stats.hp)}%;"></div></div>
-                        <span class="stat-val">${data.stats.hp}</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-name">Atk</span>
-                        <div class="stat-bar-container"><div class="stat-bar-fill atk-bar" style="width: ${normalize(data.stats.atk)}%;"></div></div>
-                        <span class="stat-val">${data.stats.atk}</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-name">Def</span>
-                        <div class="stat-bar-container"><div class="stat-bar-fill def-bar" style="width: ${normalize(data.stats.def)}%;"></div></div>
-                        <span class="stat-val">${data.stats.def}</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-name">SpA</span>
-                        <div class="stat-bar-container"><div class="stat-bar-fill spa-bar" style="width: ${normalize(data.stats.spa)}%;"></div></div>
-                        <span class="stat-val">${data.stats.spa}</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-name">SpD</span>
-                        <div class="stat-bar-container"><div class="stat-bar-fill spd-bar" style="width: ${normalize(data.stats.spd)}%;"></div></div>
-                        <span class="stat-val">${data.stats.spd}</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-name">Spe</span>
-                        <div class="stat-bar-container"><div class="stat-bar-fill spe-bar" style="width: ${normalize(data.stats.spe)}%;"></div></div>
-                        <span class="stat-val">${data.stats.spe}</span>
-                    </div>
-
+                    ${Object.entries(data.stats).map(([key, val]) => `
+                        <div class="stat-row">
+                            <span class="stat-name">${key.toUpperCase()}</span>
+                            <div class="stat-bar-container"><div class="stat-bar-fill ${key}-bar" style="width: ${normalize(val)}%;"></div></div>
+                            <span class="stat-val">${val}</span>
+                        </div>
+                    `).join('')}
                     <div style="text-align:center; font-size:0.7rem; color:#888; margin-top:10px;">
-                        Total: ${totalStats}
+                        Total Base Stats: <strong>${totalStats}</strong>
                     </div>
                 </div>
             </div>
@@ -340,17 +434,14 @@
 
     function nextPokemon() {
         currentIndex = (currentIndex + 1) % pokemonDB.length;
-        // Reset animation
         const container = document.getElementById('screen-container');
         container.classList.remove('fade-in');
-        void container.offsetWidth; // trigger reflow
+        void container.offsetWidth; 
         container.classList.add('fade-in');
         renderPokemon();
     }
 
-    // Initial Load
     renderPokemon();
-
 </script>
 
 </body>
