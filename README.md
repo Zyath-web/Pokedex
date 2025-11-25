@@ -22,16 +22,6 @@ Lade die Datei index.html herunter.
 
 Öffne sie in einem beliebigen modernen Webbrowser (Chrome, Firefox, Safari, Edge).
 
-Hosting (Online verfügbar machen)
-
-Dieses Projekt ist für GitHub Pages optimiert.
-
-Lade die index.html in ein GitHub Repository hoch.
-
-Gehe zu Settings > Pages.
-
-Wähle unter "Branch" main (oder master) aus und klicke auf Save.
-
 🛠 Technologien
 
 HTML5 & CSS3: Für Struktur und das "Device"-Styling (CSS Grid/Flexbox).
