@@ -182,6 +182,7 @@
         .type-poison { background-color: #A33EA1; }
         .type-fire { background-color: #EE8130; }
         .type-water { background-color: #6390F0; }
+        .type-flying { background-color: #A98FF3; }
 
         /* Tabs */
         .tabs { display: flex; background: #333; position: sticky; top: 0; z-index: 5; }
@@ -211,12 +212,89 @@
             font-size: 0.85rem; line-height: 1.5; color: #444;
         }
 
+        /* Evolution Styling */
+        .evo-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding: 0 5px;
+        }
+        .evo-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.7rem;
+            color: #555;
+            position: relative;
+        }
+        .evo-img-small {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            margin-bottom: 4px;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+            transition: transform 0.2s;
+        }
+        .evo-img-small:hover { transform: scale(1.15); }
+        .evo-arrow {
+            color: #ccc;
+            font-size: 0.8rem;
+        }
+        .evo-level {
+            font-size: 0.6rem;
+            color: #888;
+            margin-top: 2px;
+            background: #f0f0f0;
+            padding: 1px 4px;
+            border-radius: 4px;
+        }
+
         /* Stats Bars */
-        .stat-row { display: flex; align-items: center; margin-bottom: 6px; font-size: 0.75rem; }
+        .stat-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.75rem; }
         .stat-name { width: 40px; font-weight: bold; color: #666; }
         .stat-bar-container { flex: 1; background: #e0e0e0; height: 10px; border-radius: 5px; margin: 0 8px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); }
         .stat-bar-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease-out; }
-        .stat-val { width: 25px; text-align: right; font-weight: bold; }
+        .stat-val { width: 35px; text-align: right; font-weight: bold; font-family: 'Roboto Mono', monospace; }
+
+        /* Slider Styling */
+        .level-control {
+            background: #eee;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #ccc;
+        }
+        .level-slider {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #ccc;
+            border-radius: 3px;
+            outline: none;
+        }
+        .level-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .level-display {
+            font-weight: bold;
+            color: var(--primary-color);
+            min-width: 60px;
+            text-align: center;
+            background: #fff;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: 'Roboto Mono';
+        }
 
         /* Stats Colors */
         .hp-bar { background: linear-gradient(90deg, #FF5959, #ff8c8c); }
@@ -236,9 +314,14 @@
         .d-pad { width: 100%; height: 100%; position: relative; }
         .d-pad div { background: #222; position: absolute; border-radius: 4px; cursor: pointer; box-shadow: 0 3px 0 #000; transition: transform 0.1s; border: 1px solid #444;}
         .d-pad div:active { transform: scale(0.96); box-shadow: 0 1px 0 #000; }
+        
         .d-up-down { width: 28px; height: 90px; left: 31px; top: 0; }
-        .d-left-right { width: 90px; height: 28px; top: 31px; left: 0; }
-        .d-center { width: 20px; height: 20px; background: #333; position: absolute; top: 35px; left: 35px; border-radius: 50%; pointer-events: none;}
+        
+        /* Updated Left/Right Buttons */
+        .d-left { width: 40px; height: 28px; top: 31px; left: 0; border-radius: 4px 0 0 4px; }
+        .d-right { width: 40px; height: 28px; top: 31px; right: 0; border-radius: 0 4px 4px 0; }
+        
+        .d-center { width: 20px; height: 20px; background: #333; position: absolute; top: 35px; left: 35px; border-radius: 50%; pointer-events: none; z-index: 10;}
         
         .system-info { text-align: right; }
         .speaker-grill { display: flex; gap: 4px; justify-content: flex-end; margin-bottom: 10px; }
@@ -282,7 +365,9 @@
         <div class="d-pad-container">
             <div class="d-pad">
                 <div class="d-up-down"></div>
-                <div class="d-left-right" onclick="nextPokemon()"></div>
+                <!-- Split Buttons -->
+                <div class="d-left" onclick="prevPokemon()"></div>
+                <div class="d-right" onclick="nextPokemon()"></div>
                 <div class="d-center"></div>
             </div>
             <div class="nav-hint">TAP LEFT/RIGHT</div>
@@ -298,7 +383,7 @@
             <div class="speaker-grill">
                 <div class="grill-line"></div>
             </div>
-            <div class="version-text">DEX-OS v3.5<br>ONLINE</div>
+            <div class="version-text">DEX-OS v4.1<br>ONLINE</div>
         </div>
     </div>
 </div>
@@ -306,6 +391,7 @@
 <script>
     // --- DATABASE ---
     const pokemonDB = [
+        // BULBASAUR FAMILY
         {
             id: "#0001",
             name: "Bulbasaur",
@@ -319,8 +405,43 @@
             dietInfo: "Does not require solid food. All neutrinos gained from Photosynthesis.",
             breeding: "Uses vines for stability and holding partners firmly. The bulb releases potent pheromones causing intense attraction in nearby creatures.",
             extras: "Warning: Pheromones are extremely potent.",
-            stats: { hp: 45, atk: 49, def: 49, spa: 65, spd: 65, spe: 45 }
+            stats: { hp: 45, atk: 49, def: 49, spa: 65, spd: 65, spe: 45 },
+            evolutionChain: [ { id: 1, name: "Bulbasaur", level: "Base" }, { id: 2, name: "Ivysaur", level: "Lvl 16" }, { id: 3, name: "Venusaur", level: "Lvl 32" } ]
         },
+        {
+            id: "#0002",
+            name: "Ivysaur",
+            genus: "Seed Pokémon",
+            types: ["Grass", "Poison"],
+            image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/2.png",
+            flavor: "When the bulb on its back grows large, it appears to lose the ability to stand on its hind legs.",
+            height: "1.0 m",
+            weight: "13.0 kg",
+            diet: "Photosynthesis+",
+            dietInfo: "Absorbs sunlight to feed the blooming bud. Requires more water than Bulbasaur.",
+            breeding: "The bulb's sweet aroma signals readiness. During mating, the scent becomes a heavy musk that masks other scents in the area.",
+            extras: "Note: Bud weight affects mobility but increases pheromone range.",
+            stats: { hp: 60, atk: 62, def: 63, spa: 80, spd: 80, spe: 60 },
+            evolutionChain: [ { id: 1, name: "Bulbasaur", level: "Base" }, { id: 2, name: "Ivysaur", level: "Lvl 16" }, { id: 3, name: "Venusaur", level: "Lvl 32" } ]
+        },
+        {
+            id: "#0003",
+            name: "Venusaur",
+            genus: "Seed Pokémon",
+            types: ["Grass", "Poison"],
+            image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/3.png",
+            flavor: "The plant blooms when it absorbs solar energy. It stays on the move to seek sunlight.",
+            height: "2.0 m",
+            weight: "100.0 kg",
+            diet: "Solar & Carnivore",
+            dietInfo: "Primarily solar energy, but large prey is occasionally ensnared by vines.",
+            breeding: "Releases a pollen cloud that induces a euphoric trance in potential partners. The massive flower acts as a display of dominance and virility.",
+            extras: "Danger: Pollen can cause drowsiness or hallucinations in humans.",
+            stats: { hp: 80, atk: 82, def: 83, spa: 100, spd: 100, spe: 80 },
+            evolutionChain: [ { id: 1, name: "Bulbasaur", level: "Base" }, { id: 2, name: "Ivysaur", level: "Lvl 16" }, { id: 3, name: "Venusaur", level: "Lvl 32" } ]
+        },
+        
+        // CHARMANDER FAMILY
         {
             id: "#0004",
             name: "Charmander",
@@ -334,8 +455,43 @@
             dietInfo: "Meat of any kind. ANY KIND. Voracious appetite.",
             breeding: "Tail flame flares brighter during mating. Some individuals enjoy when their partner takes control of their flame's intensity.",
             extras: "Prefers hot environments.",
-            stats: { hp: 39, atk: 52, def: 43, spa: 60, spd: 50, spe: 65 }
+            stats: { hp: 39, atk: 52, def: 43, spa: 60, spd: 50, spe: 65 },
+            evolutionChain: [ { id: 4, name: "Charmander", level: "Base" }, { id: 5, name: "Charmeleon", level: "Lvl 16" }, { id: 6, name: "Charizard", level: "Lvl 36" } ]
         },
+        {
+            id: "#0005",
+            name: "Charmeleon",
+            genus: "Flame Pokémon",
+            types: ["Fire"],
+            image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/5.png",
+            flavor: "It has a barbaric nature. In battle, it whips its fiery tail around and slashes with sharp claws.",
+            height: "1.1 m",
+            weight: "19.0 kg",
+            diet: "Carnivore (Aggressive)",
+            dietInfo: "Hunts actively. Tears prey apart with claws before cooking it.",
+            breeding: "Extremely aggressive mating rituals involving sparring. The tail flame turns a bluish-white color when highly aroused or angry.",
+            extras: "Warning: Unpredictable temper. Do not touch the tail.",
+            stats: { hp: 58, atk: 64, def: 58, spa: 80, spd: 65, spe: 80 },
+            evolutionChain: [ { id: 4, name: "Charmander", level: "Base" }, { id: 5, name: "Charmeleon", level: "Lvl 16" }, { id: 6, name: "Charizard", level: "Lvl 36" } ]
+        },
+        {
+            id: "#0006",
+            name: "Charizard",
+            genus: "Flame Pokémon",
+            types: ["Fire", "Flying"],
+            image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png",
+            flavor: "It spits fire that is hot enough to melt boulders. It may cause forest fires by blowing flames.",
+            height: "1.7 m",
+            weight: "90.5 kg",
+            diet: "Apex Carnivore",
+            dietInfo: "Consumes large prey. Requires massive caloric intake to sustain flight.",
+            breeding: "Aerial displays are common. Partners engage in mid-air dances. Highly territorial during breeding season; heat from the body increases significantly.",
+            extras: "Caution: Breath can melt steel. Respect its territory.",
+            stats: { hp: 78, atk: 84, def: 78, spa: 109, spd: 85, spe: 100 },
+            evolutionChain: [ { id: 4, name: "Charmander", level: "Base" }, { id: 5, name: "Charmeleon", level: "Lvl 16" }, { id: 6, name: "Charizard", level: "Lvl 36" } ]
+        },
+
+        // SQUIRTLE FAMILY
         {
             id: "#0007",
             name: "Squirtle",
@@ -348,13 +504,57 @@
             diet: "Omnivore",
             dietInfo: "Primarily veggies, occasionally fish.",
             breeding: "Aquatic mating. Known to unwrap tail for unique tactile reproductive functions.",
-            extras: "SAFETY WARNING: Water jets are high pressure. Do not target humans (Hospital incidents on record).",
-            stats: { hp: 44, atk: 48, def: 65, spa: 50, spd: 64, spe: 43 }
+            extras: "SAFETY WARNING: Water jets are high pressure. Do not target humans.",
+            stats: { hp: 44, atk: 48, def: 65, spa: 50, spd: 64, spe: 43 },
+            evolutionChain: [ { id: 7, name: "Squirtle", level: "Base" }, { id: 8, name: "Wartortle", level: "Lvl 16" }, { id: 9, name: "Blastoise", level: "Lvl 36" } ]
+        },
+        {
+            id: "#0008",
+            name: "Wartortle",
+            genus: "Turtle Pokémon",
+            types: ["Water"],
+            image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/8.png",
+            flavor: "It is recognized as a symbol of longevity. If its shell has algae on it, that Wartortle is very old.",
+            height: "1.0 m",
+            weight: "22.5 kg",
+            diet: "Omnivore / Scavenger",
+            dietInfo: "Eats aquatic plants and crustaceans. Algae on shell is sometimes consumed.",
+            breeding: "Uses its large, furry ears and tail to sense subtle water currents from partners. The tail fur darkens during the mating season.",
+            extras: "Note: Ears are extremely sensitive to touch.",
+            stats: { hp: 59, atk: 63, def: 80, spa: 65, spd: 80, spe: 58 },
+            evolutionChain: [ { id: 7, name: "Squirtle", level: "Base" }, { id: 8, name: "Wartortle", level: "Lvl 16" }, { id: 9, name: "Blastoise", level: "Lvl 36" } ]
+        },
+        {
+            id: "#0009",
+            name: "Blastoise",
+            genus: "Shellfish Pokémon",
+            types: ["Water"],
+            image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/9.png",
+            flavor: "It crushes its foe under its heavy body to cause fainting. In a pinch, it will withdraw inside its shell.",
+            height: "1.6 m",
+            weight: "85.5 kg",
+            diet: "Omnivore (Heavy)",
+            dietInfo: "Requires large quantities of food to power its water cannons.",
+            breeding: "Males use their water cannons for displays of power, shooting jets high into the air. The shell is incredibly durable, allowing for rough mating rituals.",
+            extras: "Danger: Hydro cannons can punch through steel plating.",
+            stats: { hp: 79, atk: 83, def: 100, spa: 85, spd: 105, spe: 78 },
+            evolutionChain: [ { id: 7, name: "Squirtle", level: "Base" }, { id: 8, name: "Wartortle", level: "Lvl 16" }, { id: 9, name: "Blastoise", level: "Lvl 36" } ]
         }
     ];
 
     let currentIndex = 0;
     let currentTab = 'info';
+    let currentLevel = 50; // Default Level
+
+    // Stat Calculation Helper (Standard Gen 3+ Formula assumption with 31 IVs and 0 EVs for simplification)
+    function calculateStat(base, level, isHP) {
+        // IV = 31 (Max potential), EV = 0 (Wild/Untrained)
+        if (isHP) {
+            return Math.floor(((2 * base + 31) * level) / 100) + level + 10;
+        } else {
+            return Math.floor(((2 * base + 31) * level) / 100) + 5;
+        }
+    }
 
     function renderPokemon() {
         const data = pokemonDB[currentIndex];
@@ -364,8 +564,29 @@
             `<span class="type-badge type-${t.toLowerCase()}">${t}</span>`
         ).join('');
 
+        // Bar visualization (still based on base stats for potential comparison)
         const normalize = (val) => Math.min((val / 150) * 100, 100);
         const totalStats = Object.values(data.stats).reduce((a, b) => a + b, 0);
+
+        // Evolution HTML Builder
+        let evoHtml = '';
+        if (data.evolutionChain) {
+            evoHtml = `
+                <div class="eco-box">
+                    <div class="eco-title"><i class="fas fa-dna"></i> Evolution</div>
+                    <div class="evo-row">
+                        ${data.evolutionChain.map((evo, index) => `
+                            <div class="evo-item" style="${evo.name === data.name ? 'opacity: 1; font-weight:bold; color:#000;' : 'opacity: 0.5;'}">
+                                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${evo.id}.png" class="evo-img-small">
+                                <span>${evo.name}</span>
+                                <span class="evo-level">${evo.level}</span>
+                            </div>
+                            ${index < data.evolutionChain.length - 1 ? '<i class="fas fa-chevron-right evo-arrow"></i>' : ''}
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
 
         container.innerHTML = `
             <div class="entry-header">
@@ -385,6 +606,7 @@
 
             <div class="tab-content ${currentTab === 'info' ? 'active' : ''}">
                 <div class="flavor-text">"${data.flavor}"</div>
+                ${evoHtml}
                 <div class="eco-box">
                     <div class="eco-title"><i class="fas fa-ruler"></i> Stats</div>
                     <div class="data-row"><span class="data-label">Genus</span><span class="data-value">${data.genus}</span></div>
@@ -411,16 +633,28 @@
 
             <div class="tab-content ${currentTab === 'stats' ? 'active' : ''}">
                 <div class="eco-box">
-                    <div class="eco-title"><i class="fas fa-chart-bar"></i> Base Stats</div>
-                    ${Object.entries(data.stats).map(([key, val]) => `
+                    <div class="eco-title"><i class="fas fa-chart-bar"></i> Performance Calculator</div>
+                    
+                    <div class="level-control">
+                        <span style="font-size:0.8rem; font-weight:bold; color:#555;">LVL</span>
+                        <input type="range" min="1" max="100" value="${currentLevel}" class="level-slider" oninput="updateLevel(this.value)">
+                        <span id="level-val" class="level-display">${currentLevel}</span>
+                    </div>
+
+                    ${Object.entries(data.stats).map(([key, baseVal]) => `
                         <div class="stat-row">
                             <span class="stat-name">${key.toUpperCase()}</span>
-                            <div class="stat-bar-container"><div class="stat-bar-fill ${key}-bar" style="width: ${normalize(val)}%;"></div></div>
-                            <span class="stat-val">${val}</span>
+                            <div class="stat-bar-container">
+                                <div class="stat-bar-fill ${key}-bar" style="width: ${normalize(baseVal)}%;"></div>
+                            </div>
+                            <span class="stat-val" id="val-${key}">
+                                ${calculateStat(baseVal, currentLevel, key === 'hp')}
+                            </span>
                         </div>
                     `).join('')}
+                    
                     <div style="text-align:center; font-size:0.7rem; color:#888; margin-top:10px;">
-                        Total Base Stats: <strong>${totalStats}</strong>
+                        Showing Estimated Stats at Level <span id="footer-lvl">${currentLevel}</span>
                     </div>
                 </div>
             </div>
@@ -432,11 +666,37 @@
         renderPokemon();
     }
 
+    function updateLevel(newLevel) {
+        currentLevel = parseInt(newLevel);
+        document.getElementById('level-val').innerText = currentLevel;
+        document.getElementById('footer-lvl').innerText = currentLevel;
+        
+        const data = pokemonDB[currentIndex];
+        
+        // Update all stats dynamically without re-rendering the whole page
+        Object.entries(data.stats).forEach(([key, baseVal]) => {
+            const el = document.getElementById(`val-${key}`);
+            if(el) {
+                el.innerText = calculateStat(baseVal, currentLevel, key === 'hp');
+            }
+        });
+    }
+
     function nextPokemon() {
         currentIndex = (currentIndex + 1) % pokemonDB.length;
+        reloadCard();
+    }
+
+    function prevPokemon() {
+        // Wrap around logic for previous
+        currentIndex = (currentIndex - 1 + pokemonDB.length) % pokemonDB.length;
+        reloadCard();
+    }
+
+    function reloadCard() {
         const container = document.getElementById('screen-container');
         container.classList.remove('fade-in');
-        void container.offsetWidth; 
+        void container.offsetWidth; // trigger reflow
         container.classList.add('fade-in');
         renderPokemon();
     }
